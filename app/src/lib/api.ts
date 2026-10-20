@@ -18,7 +18,11 @@ async function call(url: string, init?: RequestInit): Promise<Data> {
   try {
     res = await fetch(url, { ...init, signal: ctl.signal, redirect: 'follow' });
   } catch (e) {
-    throw new Error(ctl.signal.aborted ? 'Google non risponde' : 'Nessuna connessione');
+    if (ctl.signal.aborted) throw new Error('Google non risponde');
+    if (!navigator.onLine) throw new Error('Nessuna connessione');
+    // Online ma risposta bloccata: Google ha mandato una pagina di login o di errore
+    // (senza intestazioni CORS) invece del JSON.
+    throw new Error("Google ha rifiutato la richiesta: controlla che l'URL finisca con /exec e che l'App web sia pubblicata con accesso \"Chiunque\"");
   } finally {
     clearTimeout(t);
   }
