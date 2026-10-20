@@ -1,0 +1,519 @@
+<title>Benessere Torino</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una colonna da telefono, schede per pasto, barra di navigazione fissa in basso */
+:root {
+  --bg: #f3f1ec; --card: #fffdf9; --ink: #1f2420; --muted: #6b716a; --line: #e2dfd6;
+  --accent: #2e6b4c; --accent-ink: #ffffff; --accent-soft: #e0ede5; --warn: #a65d1c; --warn-soft: #f6e8d8;
+  --p: #3a6aa8; --c: #b8862a; --f: #9a4f73; --danger: #a33a2a; --danger-soft: #f6e1dc;
+  --display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 16px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121513; --card: #1b201d; --ink: #eef0ea; --muted: #9ba39b; --line: #2d332f;
+  --accent: #74c49a; --accent-ink: #0f1a14; --accent-soft: #213329; --warn: #e3a467; --warn-soft: #36291c;
+  --p: #86abe0; --c: #e0b55e; --f: #d68fb2; --danger: #ef8f7f; --danger-soft: #3a221d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121513; --card: #1b201d; --ink: #eef0ea; --muted: #9ba39b; --line: #2d332f;
+  --accent: #74c49a; --accent-ink: #0f1a14; --accent-soft: #213329; --warn: #e3a467; --warn-soft: #36291c;
+  --p: #86abe0; --c: #e0b55e; --f: #d68fb2; --danger: #ef8f7f; --danger-soft: #3a221d; color-scheme: dark }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body); }
+main { max-width: 560px; margin: 0 auto; padding-block: 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font: 700 28px/1.15 var(--display); margin: 4px 0 2px; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 22px 4px 8px; font-weight: 600; }
+.sub { color: var(--muted); margin: 0 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--accent-soft); color: var(--accent); margin: 4px 4px 0 0; }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.big { font: 700 36px/1.1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; position: relative; overflow: hidden; margin-top: 4px; }
+.bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; }
+.bar > b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); opacity: .35; }
+.macros { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 12px; }
+.macro .lbl { display: flex; justify-content: space-between; font-size: 13px; font-variant-numeric: tabular-nums; }
+.btn { border: 0; border-radius: 12px; padding: 10px 14px; font: 600 15px var(--body); cursor: pointer; background: var(--accent); color: var(--accent-ink); flex: none; transition: background .15s, color .15s; }
+.btn.done { background: var(--accent-soft); color: var(--accent); }
+.btn:focus-visible, .check:focus-visible, nav button:focus-visible, .day:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.meal-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.time { font-variant-numeric: tabular-nums; font-weight: 700; width: 48px; flex: none; }
+.items { margin: 10px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.items li { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.items li:last-child { border-bottom: 0; }
+.prep { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--warn-soft); color: var(--ink); font-size: 14px; }
+.eaten .meal-title { text-decoration: line-through; color: var(--muted); }
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.day { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 0; text-align: center; cursor: pointer; }
+.day .n { font: 700 18px var(--display); }
+.day .w { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.day .dot { height: 6px; width: 6px; border-radius: 99px; margin: 4px auto 0; background: transparent; }
+.day.sel { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.day.sel .w { color: var(--accent-ink); opacity: .8; }
+.day.today:not(.sel) { border-color: var(--accent); }
+.weeknav { display: flex; justify-content: space-between; align-items: center; margin: 8px 2px 10px; }
+.weeknav button { background: none; border: 0; color: var(--accent); font: 600 15px var(--body); padding: 6px; cursor: pointer; }
+.check { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line); flex: none; display: grid; place-items: center; cursor: pointer; background: var(--card); color: var(--accent-ink); }
+.check.on { background: var(--accent); border-color: var(--accent); }
+.empty { text-align: center; color: var(--muted); padding: 24px 8px; }
+.banner { border-radius: 12px; padding: 10px 12px; font-size: 14px; margin-bottom: 10px; background: var(--danger-soft); color: var(--danger); }
+.banner button { margin-top: 8px; }
+nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); z-index: 5; }
+nav button { background: none; border: 0; font: 500 12px var(--body); color: var(--muted); padding: 6px 0; cursor: pointer; }
+nav button .ico { display: block; font-size: 19px; line-height: 1.2; }
+nav button.on { color: var(--accent); font-weight: 700; }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); max-width: 528px; margin: 0 auto;
+  background: var(--ink); color: var(--bg); padding: 12px 14px; border-radius: 12px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 9; }
+.toast.show { opacity: 1; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.refresh { background: none; border: 0; color: var(--muted); font: 13px var(--body); padding: 8px 0; cursor: pointer; flex: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<main id="app"><div class="empty">Collego lo Sheet…</div></main>
+<nav id="nav">
+  <button data-v="oggi"><span class="ico">◉</span>Oggi</button>
+  <button data-v="settimana"><span class="ico">▦</span>Settimana</button>
+  <button data-v="spesa"><span class="ico">☐</span>Spesa</button>
+  <button data-v="prepara"><span class="ico">⧉</span>Da preparare</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+var D = null, view = 'oggi', selDay = null, weekOffset = 0, open = {}, busy = {}, lastLoad = 0;
+var GIORNI = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+var MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+var PEZZO = { 'Banana': 120, 'Mela': 150, 'Uova': 55 };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function r0(n) { return Math.round(n || 0); }
+function parseKey(k) { var p = k.split('-').map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2])); }
+function keyOf(d) { return d.toISOString().slice(0, 10); }
+function addDays(k, n) { var d = parseKey(k); d.setUTCDate(d.getUTCDate() + n); return keyOf(d); }
+function monday(k) { var d = parseKey(k); return addDays(k, -((d.getUTCDay() + 6) % 7)); }
+function dayName(k) { return GIORNI[parseKey(k).getUTCDay()]; }
+function longDate(k) { var d = parseKey(k); return GIORNI[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MESI[d.getUTCMonth()]; }
+function rel(k) { return k === D.today ? 'Oggi' : k === addDays(D.today, 1) ? 'Domani' : dayName(k); }
+
+function eatenSet() {
+  var s = {};
+  D.consumi.forEach(function (c) { s[c.date + '|' + c.pasto + '|' + c.alimento] = true; });
+  return s;
+}
+
+function mealsOf(date) {
+  var s = eatenSet(), map = {}, list = [];
+  D.plan.forEach(function (x) {
+    if (x.date !== date) return;
+    var m = map[x.pasto];
+    if (!m) { m = map[x.pasto] = { date: date, pasto: x.pasto, ora: x.ora, items: [], kcal: 0, p: 0, c: 0, f: 0, portare: false, prep: [], eatenN: 0 }; list.push(m); }
+    m.items.push(x);
+    m.kcal += x.kcal; m.p += x.p; m.c += x.c; m.f += x.f;
+    if (x.portare) m.portare = true;
+    if (x.prep) m.prep.push(x.prep);
+    if (s[date + '|' + x.pasto + '|' + x.alimento]) m.eatenN++;
+  });
+  list.forEach(function (m) { m.eaten = m.eatenN === m.items.length; m.partial = m.eatenN > 0 && !m.eaten; m.key = date + '|' + m.pasto; });
+  return list.sort(function (a, b) { return (a.ora || '99') < (b.ora || '99') ? -1 : 1; });
+}
+
+function dayInfo(date) { return D.days.filter(function (d) { return d.date === date; })[0] || null; }
+
+function totals(list) {
+  return list.reduce(function (t, x) { t.kcal += x.kcal; t.p += x.p; t.c += x.c; t.f += x.f; return t; }, { kcal: 0, p: 0, c: 0, f: 0 });
+}
+
+function upcoming(fromDate, nDays) {
+  var out = [];
+  for (var i = 0; i < nDays; i++) {
+    var k = addDays(fromDate, i);
+    mealsOf(k).forEach(function (m) {
+      if (m.eaten) return;
+      if (k === D.today && m.ora && m.ora < minus(D.now, 60)) return;
+      out.push(m);
+    });
+  }
+  return out;
+}
+function minus(hhmm, mins) { var p = hhmm.split(':').map(Number), t = p[0] * 60 + p[1] - mins; if (t < 0) t = 0; return ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + t % 60).slice(-2); }
+
+// Cosa manca: grammi pianificati da oggi in poi (pasti non ancora mangiati)
+// meno il residuo in Dispensa e meno quello già spuntato in Spesa app.
+function shopping() {
+  var s = eatenSet(), need = {}, monday0 = monday(D.today), avail = {}, bought = {};
+  D.plan.forEach(function (x) {
+    if (x.date < D.today || x.g === null || !x.g) return;
+    if (s[x.date + '|' + x.pasto + '|' + x.alimento]) return;
+    var n = need[x.alimento] || (need[x.alimento] = { g: 0, uses: [] });
+    n.g += x.g;
+    var u = rel(x.date) + ' ' + x.pasto.toLowerCase();
+    if (n.uses.indexOf(u) < 0) n.uses.push(u);
+  });
+  D.dispensa.forEach(function (d) { avail[d.nome] = (avail[d.nome] || 0) + Math.max(0, d.residuo); });
+  D.spesa.forEach(function (b) { if (b.date >= monday0) bought[b.alimento] = (bought[b.alimento] || 0) + b.g; });
+  var missing = [], done = [];
+  Object.keys(need).forEach(function (a) {
+    var gap = need[a].g - (avail[a] || 0);
+    if (gap <= 0.5) return;
+    var item = { alimento: a, g: Math.ceil(gap), uses: need[a].uses, bought: bought[a] || 0 };
+    if (item.bought >= gap - 0.5) done.push(item); else { item.g = Math.ceil(gap - item.bought); missing.push(item); }
+  });
+  Object.keys(bought).forEach(function (a) { if (!need[a] || need[a].g - (avail[a] || 0) <= 0.5) done.push({ alimento: a, g: bought[a], uses: [], bought: bought[a] }); });
+  return { missing: missing, done: done };
+}
+
+function qty(a, g) {
+  var s = r0(g) + ' g';
+  if (PEZZO[a]) s += ' · circa ' + Math.max(1, Math.ceil(g / PEZZO[a])) + (a === 'Uova' ? ' uova' : ' pz');
+  return s;
+}
+
+function macroBars(eat, plan, t) {
+  var defs = [['kcal', 'kcal', 'var(--k)', ''], ['p', 'Proteine', 'var(--p)', ' g'], ['c', 'Carbo', 'var(--c)', ' g'], ['f', 'Grassi', 'var(--f)', ' g']];
+  return '<div class="macros">' + defs.map(function (d) {
+    var tg = t[d[0]] || 1, pct = Math.min(100, eat[d[0]] / tg * 100), pl = Math.min(100, plan[d[0]] / tg * 100);
+    return '<div class="macro"><div class="lbl"><span>' + d[1] + '</span><span class="muted">' + r0(eat[d[0]]) + ' / ' + r0(t[d[0]]) + d[3] + '</span></div>' +
+      '<div class="bar"><i style="width:' + pct + '%;background:' + d[2] + '"></i>' + (plan[d[0]] ? '<b style="left:' + pl + '%"></b>' : '') + '</div></div>';
+  }).join('') + '</div>';
+}
+
+function mealCard(m, opts) {
+  opts = opts || {};
+  var isOpen = open[m.key] || opts.open, canEat = m.date <= D.today, b = false;
+  var btn = canEat ? '<button class="btn ' + (m.eaten ? 'done' : '') + '" data-eat="' + esc(m.key) + '"' + (b ? ' disabled' : '') + '>' +
+    (b ? '…' : m.eaten ? '✓ Mangiato' : m.partial ? 'Completa' : 'Mangiato') + '</button>' : '';
+  var h = '<div class="card ' + (m.eaten ? 'eaten' : '') + '"><div class="meal-head" data-open="' + esc(m.key) + '">' +
+    '<div class="time">' + esc(m.ora || '—') + '</div><div class="grow"><div class="meal-title"><b>' + esc(m.pasto) + '</b>' +
+    (opts.showDay ? ' <span class="muted small">' + rel(m.date) + '</span>' : '') + '</div>' +
+    '<div class="muted small">' + r0(m.kcal) + ' kcal · P ' + r0(m.p) + ' · C ' + r0(m.c) + ' · G ' + r0(m.f) + '</div>' +
+    (m.portare ? '<span class="chip warn">da portare</span>' : '') + '</div>' + btn + '</div>';
+  if (isOpen) {
+    h += '<ul class="items">' + m.items.map(function (x) {
+      return '<li><span>' + esc(x.alimento) + (x.stima ? ' <span class="muted small">(stima)</span>' : '') + '</span><span class="muted">' + (x.g === null ? '' : r0(x.g) + ' g') + '</span></li>';
+    }).join('') + '</ul>';
+    if (m.prep.length) h += '<div class="prep">' + m.prep.map(esc).join('<br>') + '</div>';
+  }
+  return h + '</div>';
+}
+
+function viewOggi() {
+  var t = D.today, info = dayInfo(t), meals = mealsOf(t);
+  var eat = totals(D.consumi.filter(function (c) { return c.date === t; })), plan = totals(meals);
+  var h = '<div class="top"><div><h1>' + longDate(t) + '</h1><p class="sub">' + esc(info ? info.luogo : '') + (info && info.allenamento ? ' · ' + esc(info.allenamento) : '') + '</p></div>' +
+    '<button class="refresh" id="refresh"><span id="sync" style="opacity:0;transition:opacity .2s;color:var(--accent)">● </span>↻ aggiorna</button></div>';
+  if (meals.length) {
+    h += '<div class="card"><div class="muted small">Mangiato oggi</div><div class="big">' + r0(eat.kcal) + ' <span class="muted" style="font-size:16px;font-weight:400">/ ' + r0(D.target.kcal) + ' kcal</span></div>' +
+      macroBars(eat, plan, D.target) + '<div class="muted small" style="margin-top:8px">La tacca grigia è quanto prevede il piano di oggi.</div></div>';
+  } else if (info && /bra/i.test(info.luogo)) {
+    h += '<div class="card">Oggi sei a Bra: niente piano, mangia sano e in quantità moderate. Per le quantità chiedi a Claude nel thread di Bra.</div>';
+  }
+  var next = upcoming(t, 2)[0];
+  if (next) { h += '<h2>Prossimo pasto</h2>' + mealCard(next, { open: true, showDay: next.date !== t }); }
+  var bag = upcoming(t, 2).filter(function (m) { return m.portare; });
+  if (bag.length) {
+    h += '<h2>Nello zaino</h2><div class="card">' + bag.map(function (m) {
+      return '<div><b>' + rel(m.date) + ', ' + esc(m.pasto.toLowerCase()) + '</b> <span class="muted small">' + esc(m.ora) + '</span><div class="muted small">' +
+        m.items.map(function (x) { return esc(x.alimento) + (x.g ? ' ' + r0(x.g) + ' g' : ''); }).join(', ') + '</div></div>';
+    }).join('<div style="height:8px"></div>') + '</div>';
+  }
+  var sp = shopping();
+  h += '<h2>Spesa</h2><div class="card row" data-go="spesa" style="cursor:pointer"><div class="grow">' +
+    (sp.missing.length ? '<b>Ti mancano ' + sp.missing.length + ' cose</b><div class="muted small">' + sp.missing.slice(0, 4).map(function (x) { return esc(x.alimento); }).join(', ') + (sp.missing.length > 4 ? '…' : '') + '</div>'
+      : '<b>Hai tutto per i prossimi pasti</b>') + '</div><span class="muted">›</span></div>';
+  if (meals.length) h += '<h2>Pasti di oggi</h2>' + meals.map(function (m) { return mealCard(m); }).join('');
+  if (D.peso) h += '<h2>Peso</h2><div class="card"><b>' + D.peso.kg + ' kg</b>' + (D.peso.grasso !== null ? ' · ' + D.peso.grasso + '% grasso' : '') + ' <span class="muted small">(' + longDate(D.peso.date) + ')</span></div>';
+  return h;
+}
+
+function viewSettimana() {
+  var mon = addDays(monday(D.today), weekOffset * 7);
+  if (!selDay || selDay < mon || selDay > addDays(mon, 6)) selDay = weekOffset === 0 ? D.today : mon;
+  var h = '<h1>Settimana</h1><div class="weeknav"><button data-week="-1">‹ prima</button><span class="muted small">' +
+    parseKey(mon).getUTCDate() + ' – ' + longDate(addDays(mon, 6)).split(' ').slice(1).join(' ') + '</span><button data-week="1">dopo ›</button></div><div class="strip">';
+  for (var i = 0; i < 7; i++) {
+    var k = addDays(mon, i), info = dayInfo(k), has = mealsOf(k).length, train = info && info.allenamento && !/riposo/i.test(info.allenamento);
+    h += '<div class="day' + (k === selDay ? ' sel' : '') + (k === D.today ? ' today' : '') + '" data-day="' + k + '"><div class="w">' + dayName(k).slice(0, 3) + '</div><div class="n">' +
+      parseKey(k).getUTCDate() + '</div><div class="dot" style="background:' + (train ? 'var(--warn)' : has ? 'var(--accent)' : 'transparent') + '"></div></div>';
+  }
+  h += '</div><div class="muted small" style="margin:8px 4px 0"><span style="color:var(--accent)">●</span> piano pasti · <span style="color:var(--warn)">●</span> allenamento</div>';
+  var info2 = dayInfo(selDay), meals = mealsOf(selDay);
+  h += '<h2>' + longDate(selDay) + '</h2>';
+  if (info2) h += '<div class="card"><div class="row"><div class="grow"><b>' + esc(info2.luogo || '') + '</b><div class="muted">' + esc(info2.allenamento || 'Nessun allenamento') + '</div></div></div></div>';
+  if (meals.length) {
+    var t = totals(meals);
+    h += '<div class="card small">Piano del giorno: <b>' + r0(t.kcal) + ' kcal</b> · P ' + r0(t.p) + ' · C ' + r0(t.c) + ' · G ' + r0(t.f) +
+      ' <span class="muted">(target ' + r0(D.target.kcal) + ')</span></div>' + meals.map(function (m) { return mealCard(m); }).join('');
+  } else if (info2 && /bra/i.test(String(info2.colazione) + String(info2.pranzo) + String(info2.cena) + info2.luogo)) {
+    h += '<div class="empty">A Bra si mangia a braccio, senza piano.</div>';
+  } else {
+    h += '<div class="empty">Nessun pasto pianificato per questo giorno.</div>';
+  }
+  return h;
+}
+
+function viewSpesa() {
+  var sp = shopping();
+  var h = '<h1>Spesa</h1><p class="sub">Solo quello che manca per i pasti da oggi in poi, tolto quello che hai già in Dispensa.</p>';
+  if (!sp.missing.length) h += '<div class="card">Hai tutto quello che serve per i prossimi pasti.</div>';
+  else h += sp.missing.map(function (x) {
+    var b = false;
+    return '<div class="card row"><div class="check" data-buy="' + esc(x.alimento) + '" data-g="' + x.g + '">' + (b ? '…' : '') + '</div><div class="grow"><b>' + esc(x.alimento) + '</b> <span class="muted">' + qty(x.alimento, x.g) + '</span>' +
+      '<div class="muted small">per ' + esc(x.uses.join(', ')) + '</div></div></div>';
+  }).join('');
+  if (sp.done.length) {
+    h += '<h2>Spuntati questa settimana</h2>' + sp.done.map(function (x) {
+      return '<div class="card row"><div class="check on" data-unbuy="' + esc(x.alimento) + '">✓</div><div class="grow"><span class="muted">' + esc(x.alimento) + ' · ' + r0(x.bought) + ' g</span></div></div>';
+    }).join('') + '<p class="muted small" style="margin:8px 4px">Quando mandi a Claude la foto o l\'elenco della spesa, li sposta in Dispensa con i valori delle etichette.</p>';
+  }
+  return h;
+}
+
+function viewPrepara() {
+  var list = upcoming(D.today, 2);
+  var bag = list.filter(function (m) { return m.portare; }), prep = list.filter(function (m) { return m.prep.length; });
+  var h = '<h1>Da preparare</h1><p class="sub">Oggi e domani.</p>';
+  h += '<h2>Da portare fuori</h2>';
+  h += bag.length ? bag.map(function (m) { return mealCard(m, { open: true, showDay: true }); }).join('') : '<div class="card muted">Niente da portare.</div>';
+  h += '<h2>Da cucinare o preparare</h2>';
+  h += prep.length ? prep.map(function (m) {
+    return '<div class="card"><b>' + rel(m.date) + ', ' + esc(m.pasto.toLowerCase()) + '</b> <span class="muted small">' + esc(m.ora) + '</span><div class="prep">' + m.prep.map(esc).join('<br>') + '</div></div>';
+  }).join('') : '<div class="card muted">Niente da preparare in anticipo.</div>';
+  h += '<h2>Prossimi pasti</h2>' + (list.length ? list.slice(0, 6).map(function (m) { return mealCard(m, { showDay: true }); }).join('') : '<div class="card muted">Nessun pasto pianificato.</div>');
+  return h;
+}
+
+function render() {
+  if (!D) return;
+  var y = window.scrollY;
+  document.getElementById('app').innerHTML = '<div id="banner" class="banner" hidden></div>' + ({ oggi: viewOggi, settimana: viewSettimana, spesa: viewSpesa, prepara: viewPrepara })[view]();
+  renderBanner(); if (pending) sync(true);
+  document.querySelectorAll('nav button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === view); });
+  window.scrollTo(0, y);
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 3500);
+}
+
+
+// ---- Dati: lo Sheet tramite il connettore Google Sheets dell'utente ----
+var SID = '1mLOuZnHsgO0RF1pc8gI1ZzWMNxOYT_e9tMplHztxM1s', SRV = 'Google Sheets';
+var R = {
+  profilo: "'Profilo'!A2:B20", plan: "'Piano pasti'!A2:L300", days: "'Piano settimana'!A2:I9",
+  disp: "'Dispensa'!A2:J60", cons: "'Consumi'!A2:L500", spesa: "'Spesa app'!A2:D200", misure: "'Misure'!A2:C200"
+};
+var raw = {}, mcp = null, pending = 0, problem = null;
+
+function dmyKey(v) { var m = String(v || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : ''; }
+function keyDmy(k) { var p = k.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function num(v) { var n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(n) ? 0 : n; }
+function cell(r, i) { return r && r[i] != null ? r[i] : ''; }
+
+function build() {
+  if (pending) return;
+  if (!raw.plan || !raw.disp || !raw.cons) return;
+  var prof = {};
+  (raw.profilo || []).forEach(function (r) { if (r[0]) prof[String(r[0]).trim()] = r[1]; });
+  var plan = [];
+  raw.plan.forEach(function (r) {
+    if (!cell(r, 0) || !cell(r, 3)) return;
+    plan.push({ date: dmyKey(r[0]), ora: cell(r, 1), pasto: String(r[2]).trim(), alimento: String(r[3]).trim(),
+      g: cell(r, 4) === '' ? null : num(r[4]), kcal: num(r[5]), p: num(r[6]), c: num(r[7]), f: num(r[8]),
+      portare: /^s/i.test(cell(r, 9)), prep: String(cell(r, 10)), stima: /^s/i.test(cell(r, 11)) });
+  });
+  var days = (raw.days || []).filter(function (r) { return cell(r, 0); }).map(function (r) {
+    return { date: dmyKey(r[0]), giorno: cell(r, 1), luogo: cell(r, 2), allenamento: cell(r, 3), colazione: cell(r, 4), pranzo: cell(r, 5), cena: cell(r, 6) };
+  });
+  var dispensa = raw.disp.filter(function (r) { return cell(r, 0); }).map(function (r) {
+    return { nome: String(r[0]).trim(), data: dmyKey(r[2]), residuo: num(cell(r, 9)) };
+  });
+  var consumi = [];
+  raw.cons.forEach(function (r, i) {
+    if (!cell(r, 2)) return;
+    consumi.push({ row: i + 2, date: dmyKey(r[0]), pasto: String(cell(r, 1)).trim(), alimento: String(r[2]).trim(), g: num(r[3]),
+      kcal: num(r[4]), p: num(r[5]), c: num(r[6]), f: num(r[7]) });
+  });
+  var spesa = [];
+  (raw.spesa || []).forEach(function (r, i) { if (cell(r, 1)) spesa.push({ row: i + 2, date: dmyKey(r[0]), alimento: String(r[1]).trim(), g: num(r[2]) }); });
+  var peso = null;
+  (raw.misure || []).forEach(function (r) { if (cell(r, 1) !== '') peso = { date: dmyKey(r[0]), kg: num(r[1]), grasso: cell(r, 2) === '' ? null : num(r[2]) }; });
+  D = { target: { kcal: num(prof['Target kcal/giorno']), p: num(prof['Target proteine (g)']), c: num(prof['Target carboidrati (g)']), f: num(prof['Target grassi (g)']) },
+    plan: plan, days: days, dispensa: dispensa, consumi: consumi, spesa: spesa, peso: peso };
+  stampNow(); save(); render();
+}
+
+function stampNow() {
+  if (!D) return;
+  try {
+    var p = {};
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
+      .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    D.today = p.year + '-' + p.month + '-' + p.day;
+    D.now = (p.hour === '24' ? '00' : p.hour) + ':' + p.minute;
+  } catch (e) { var d = new Date(); D.today = d.toISOString().slice(0, 10); D.now = d.toTimeString().slice(0, 5); }
+}
+function save() { try { localStorage.setItem('benessere-v3', JSON.stringify(D)); } catch (e) {} }
+function restore() { try { var s = localStorage.getItem('benessere-v3'); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function sync(on) { var el = document.getElementById('sync'); if (el) el.style.opacity = on ? 1 : 0; }
+
+var FIX = {
+  needs_reauth: 'Il collegamento a Google Sheets è scaduto: ricollegalo in claude.ai, Impostazioni > Connettori.',
+  server_not_connected: 'Google Sheets non è collegato al tuo account Claude: aggiungilo in claude.ai, Impostazioni > Connettori.',
+  selection_required: 'Hai più collegamenti a Google Sheets: scegli quale usare dalla richiesta di Claude in alto.',
+  not_in_manifest: 'Hai negato l\'accesso allo Sheet per questa pagina: riattivalo dal menu Permessi della pagina.',
+  approval_required: 'Serve il tuo permesso per leggere lo Sheet.',
+  blocked_by_policy: 'La tua organizzazione blocca l\'accesso a Google Sheets da qui.'
+};
+function setProblem(e) {
+  problem = e ? { code: e.code, text: FIX[e.code] || ('Non riesco a leggere lo Sheet (' + (e.code || 'errore') + '). Ti mostro gli ultimi dati salvati.') } : null;
+  renderBanner();
+}
+function renderBanner() {
+  var el = document.getElementById('banner'); if (!el) return;
+  el.hidden = !problem;
+  if (problem) el.innerHTML = esc(problem.text) + (problem.code === 'approval_required' ? '<br><button class="btn" id="allow">Consenti accesso allo Sheet</button>' : '');
+}
+
+function watchAll() {
+  Object.keys(R).forEach(function (k) {
+    mcp.watchTool(SRV, 'get_values', { spreadsheetId: SID, range: R[k] }, function (ev) {
+      if (ev.type === 'data') {
+        var p = ev.result.payload || {};
+        raw[k] = p.values || [];
+        lastLoad = Date.now(); if (problem && !/^(needs_reauth|server_not_connected|not_in_manifest|blocked_by_policy)$/.test(problem.code)) setProblem(null);
+        if (!ev.result.cache || !ev.result.cache.revalidating) sync(false);
+        build();
+      } else {
+        sync(false);
+        var c = ev.error && ev.error.code;
+        if (/^(needs_reauth|server_not_connected|not_in_manifest|blocked_by_policy|approval_required|selection_required)$/.test(c)) setProblem(ev.error);
+        else if (!D) setProblem(ev.error);
+      }
+    }, { cache: { staleTime: 30000, gcTime: 86400000 }, refetchInterval: 120000 });
+  });
+}
+
+function getFresh(k) {
+  return mcp.callTool(SRV, 'get_values', { spreadsheetId: SID, range: R[k] }, { cache: false }).then(function (r) { return (r.payload || {}).values || []; });
+}
+function put(range, values) { return mcp.callTool(SRV, 'update_values', { spreadsheetId: SID, range: range, values: values }, { cache: false }); }
+function refreshAll() { sync(true); return mcp.invalidate(SRV, 'get_values').catch(function () {}); }
+
+// Gruppi di righe consecutive, per scrivere con meno chiamate.
+function runs(rows) {
+  rows.sort(function (a, b) { return a - b; });
+  var out = [];
+  rows.forEach(function (r) { var last = out[out.length - 1]; if (last && last[1] === r - 1) last[1] = r; else out.push([r, r]); });
+  return out;
+}
+
+function writeMeal(date, pasto, eaten) {
+  var items = D.plan.filter(function (x) { return x.date === date && x.pasto === pasto; });
+  var inDisp = {}; D.dispensa.forEach(function (d) { inDisp[d.nome] = true; });
+  return getFresh('cons').then(function (vals) {
+    var match = function (r, a) { return dmyKey(cell(r, 0)) === date && String(cell(r, 1)).trim() === pasto && String(cell(r, 2)).trim() === a; };
+    if (eaten) {
+      var todo = items.filter(function (it) { return !vals.some(function (r) { return match(r, it.alimento); }); });
+      if (!todo.length) return;
+      var n = todo.length, start = -1;
+      for (var i = 0; i < 499 && start < 0; i++) {
+        var ok = true;
+        for (var j = 0; j < n; j++) if (cell(vals[i + j], 2)) { ok = false; break; }
+        if (ok && i + n <= 499) start = i;
+      }
+      if (start < 0) throw { code: 'full', message: 'Consumi è pieno' };
+      var r0 = start + 2, r1 = start + 1 + n;
+      var ad = todo.map(function (it) { return [keyDmy(date), pasto, it.alimento, it.g === null ? '' : it.g]; });
+      var il = todo.map(function (it) { return (!inDisp[it.alimento] || it.g === null) ? [it.kcal, it.p, it.c, it.f] : ['', '', '', '']; });
+      return put("'Consumi'!A" + r0 + ':D' + r1, ad).then(function () { return put("'Consumi'!I" + r0 + ':L' + r1, il); });
+    }
+    var rows = [];
+    vals.forEach(function (r, i) { if (items.some(function (it) { return match(r, it.alimento); })) rows.push(i + 2); });
+    return runs(rows).reduce(function (p, g) {
+      var blank = []; for (var k = g[0]; k <= g[1]; k++) blank.push(['', '', '', '']);
+      return p.then(function () { return put("'Consumi'!A" + g[0] + ':D' + g[1], blank); }).then(function () { return put("'Consumi'!I" + g[0] + ':L' + g[1], blank); });
+    }, Promise.resolve());
+  });
+}
+
+function writeBuy(alimento, g, on) {
+  if (on) return mcp.callTool(SRV, 'append_values', { spreadsheetId: SID, range: "'Spesa app'!A1:D1", values: [[keyDmy(D.today), alimento, g, "Spuntato dall'app"]] }, { cache: false });
+  var mon = monday(D.today);
+  return getFresh('spesa').then(function (vals) {
+    var rows = [];
+    vals.forEach(function (r, i) { if (String(cell(r, 1)).trim() === alimento && dmyKey(cell(r, 0)) >= mon) rows.push(i + 2); });
+    return runs(rows).reduce(function (p, gr) {
+      var blank = []; for (var k = gr[0]; k <= gr[1]; k++) blank.push(['', '', '', '']);
+      return p.then(function () { return put("'Spesa app'!A" + gr[0] + ':D' + gr[1], blank); });
+    }, Promise.resolve());
+  });
+}
+
+// Il tocco cambia subito lo schermo; lo Sheet si aggiorna dietro.
+function call(work, undo, okMsg) {
+  if (!mcp) { undo(); render(); toast('Da qui non posso scrivere nello Sheet: apri la pagina nell\'app Claude o su claude.ai.'); return; }
+  pending++; save(); render(); sync(true); toast(okMsg);
+  work().then(function () {
+    pending--; if (!pending) refreshAll();
+  }, function (e) {
+    pending--; undo(); save(); render(); sync(false);
+    var msg = e && e.code && FIX[e.code] ? FIX[e.code] : 'Non sono riuscito a scrivere nello Sheet' + (e && e.code === 'server_unavailable' ? ': Google non risponde. Controlla lo Sheet prima di riprovare, la modifica potrebbe essere passata.' : '. Riprova tra poco.');
+    toast(msg); if (!pending) refreshAll();
+  });
+}
+
+function toggleMeal(date, pasto) {
+  var m = mealsOf(date).filter(function (x) { return x.pasto === pasto; })[0];
+  if (!m) return;
+  var before = D.consumi.slice(), eaten = !m.eaten;
+  if (!eaten) D.consumi = D.consumi.filter(function (c) { return !(c.date === date && c.pasto === pasto); });
+  else {
+    var have = eatenSet();
+    m.items.forEach(function (x) { if (!have[date + '|' + pasto + '|' + x.alimento]) D.consumi.push({ date: date, pasto: pasto, alimento: x.alimento, g: x.g || 0, kcal: x.kcal, p: x.p, c: x.c, f: x.f }); });
+  }
+  call(function () { return writeMeal(date, pasto, eaten); }, function () { D.consumi = before; }, eaten ? 'Segnato come mangiato' : 'Tolto da Consumi');
+}
+
+function toggleBuy(alimento, g, on) {
+  var before = D.spesa.slice();
+  if (on) D.spesa.push({ date: D.today, alimento: alimento, g: g });
+  else D.spesa = D.spesa.filter(function (b) { return b.alimento !== alimento; });
+  call(function () { return writeBuy(alimento, g, on); }, function () { D.spesa = before; }, on ? 'Segnato come comprato' : 'Spunta tolta');
+}
+
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-v],[data-eat],[data-open],[data-day],[data-week],[data-buy],[data-unbuy],[data-go],#refresh,#allow');
+  if (!el) return;
+  if (el.dataset.v || el.dataset.go) { view = el.dataset.v || el.dataset.go; render(); window.scrollTo(0, 0); return; }
+  if (el.id === 'refresh') { if (mcp) { refreshAll(); toast('Rileggo lo Sheet'); } return; }
+  if (el.id === 'allow') {
+    mcp.callTool(SRV, 'get_values', { spreadsheetId: SID, range: R.plan }, { cache: false }).then(function () { setProblem(null); refreshAll(); }, function (er) { setProblem(er); });
+    return;
+  }
+  if (el.dataset.eat) { e.stopPropagation(); var k = el.dataset.eat, i = k.indexOf('|'); toggleMeal(k.slice(0, i), k.slice(i + 1)); return; }
+  if (el.dataset.open) { open[el.dataset.open] = !open[el.dataset.open]; render(); return; }
+  if (el.dataset.day) { selDay = el.dataset.day; render(); return; }
+  if (el.dataset.week) { weekOffset += Number(el.dataset.week); selDay = null; render(); return; }
+  if (el.dataset.buy) { toggleBuy(el.dataset.buy, Number(el.dataset.g), true); return; }
+  if (el.dataset.unbuy) { toggleBuy(el.dataset.unbuy, 0, false); return; }
+});
+document.addEventListener('visibilitychange', function () { if (!document.hidden && D) { stampNow(); render(); } });
+
+D = restore();
+if (D) { stampNow(); render(); }
+claude.use('mcp').then(function (m) {
+  mcp = m;
+  if (!mcp) {
+    if (!D) document.getElementById('app').innerHTML = '<div class="empty">Apri questa pagina nell\'app Claude o su claude.ai: da lì si collega al tuo Google Sheet.</div>';
+    else toast('Sola lettura: apri la pagina nell\'app Claude per aggiornare i dati.');
+    return;
+  }
+  sync(true); watchAll();
+});
+</script>
