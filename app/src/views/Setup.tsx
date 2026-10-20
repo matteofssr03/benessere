@@ -28,6 +28,10 @@ export function Setup({ current, onDone, onCancel, onDisconnect }: Props) {
       setErr("L'URL deve essere quello dell'App web, inizia con https://script.google.com/macros/s/…");
       return;
     }
+    if (/\/dev\/?$/.test(cfg.url)) {
+      setErr("Questo è l'URL di prova (/dev). Usa quello dell'App web pubblicata, che finisce con /exec: Distribuisci > Gestisci distribuzioni.");
+      return;
+    }
     if (cfg.token.length < 32) { setErr('Il token è troppo corto: copialo intero dal registro di Apps Script.'); return; }
     setBusy(true);
     setErr('');
